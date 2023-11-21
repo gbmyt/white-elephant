@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -114,18 +115,29 @@ fun Header(modifier: Modifier = Modifier) {
         modifier = modifier.fillMaxWidth()
     )
     Row(modifier = modifier.padding(vertical = 16.dp)) {
-        Text(
-            text = "Unwrap Todo",
-            textAlign = TextAlign.Center,
+        Button(
+            onClick = { /* TODO */ },
             modifier = modifier.weight(1f)
-        )
-        Text(
-            text = "Steal Todo",
-            textAlign = TextAlign.Center,
-            modifier = modifier
-                .fillMaxWidth()
-                .weight(1f)
-        )
+        ) {
+            Text(
+                text = "Unwrap Todo",
+                textAlign = TextAlign.Center,
+                modifier = modifier.weight(1f)
+            )
+        }
+
+        Button(
+            onClick = { /* TODO */ },
+            modifier = modifier.weight(1f).padding(start = 8.dp)
+        ) {
+            Text(
+                text = "Steal Todo",
+                textAlign = TextAlign.Center,
+                modifier = modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            )
+        }
     }
 }
 @Preview(showBackground = true)

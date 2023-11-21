@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">White Elephant Gift Exchange</string>
+    <string name="import_contacts">Import Contacts</string>
 </resources>
