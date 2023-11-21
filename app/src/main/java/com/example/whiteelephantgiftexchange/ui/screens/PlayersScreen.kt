@@ -1,8 +1,9 @@
 package com.example.whiteelephantgiftexchange.ui.screens
 
-import android.text.TextUtils.indexOf
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,6 +29,7 @@ import com.example.whiteelephantgiftexchange.R
 import com.example.whiteelephantgiftexchange.exampleData.PlayerData
 import com.example.whiteelephantgiftexchange.model.Player
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun PlayersList(modifier: Modifier = Modifier) {
     Column(
@@ -35,7 +37,7 @@ fun PlayersList(modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier.fillMaxWidth()
     ) {
-        Row(modifier = modifier.padding(16.dp)) {
+        FlowRow(maxItemsInEachRow = 2, modifier = modifier.padding(16.dp)) {
             Button(
                 content = { Text(text = stringResource(R.string.import_contacts)) },
                 onClick = { /*TODO*/ },
@@ -53,6 +55,17 @@ fun PlayersList(modifier: Modifier = Modifier) {
                 modifier = modifier
                     .weight(1f)
                     .padding(start = 4.dp)
+            )
+            Button(
+                content = {
+                    Icon(
+                        painter = painterResource(R.drawable.shuffle_24px),
+                        contentDescription = null,
+                        modifier = modifier.padding(end = 4.dp))
+                    Text(text = "Shuffle Player Turns")
+                },
+                onClick = { /*TODO*/ },
+                modifier = modifier.weight(1f)
             )
         }
 

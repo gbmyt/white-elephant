@@ -5,6 +5,6 @@ import com.example.whiteelephantgiftexchange.R
 
 class Player (
     val name: String = "",
-//    val gift: Gift = Gift(image = R.drawable.gift),
+    val gift: Gift,
     val giftUploaded: Boolean = false
 )

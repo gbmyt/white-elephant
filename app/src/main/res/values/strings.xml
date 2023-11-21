@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">White Elephant Gift Exchange</string>
-    <string name="import_contacts">Import Contacts</string>
+    <string name="import_contacts">+ Import Contacts</string>
     <string name="back_button">Back</string>
     <string name="players">Players</string>
-    <string name="add_gift">Add Gift</string>
+    <string name="add_gift">Add Gift 🎁</string>
 </resources>
