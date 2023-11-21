@@ -2,7 +2,7 @@ package com.example.whiteelephantgiftexchange.exampleData
 
 import com.example.whiteelephantgiftexchange.model.Player
 
-class DataSource {
+class PlayerData {
     val players = listOf<Player>(
         Player("Grandma", giftUploaded = true),
         Player("Grandpa"),

@@ -1,91 +1,124 @@
 package com.example.whiteelephantgiftexchange.ui.screens
 
-import androidx.compose.foundation.background
+import android.text.TextUtils.indexOf
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.whiteelephantgiftexchange.R
-import com.example.whiteelephantgiftexchange.exampleData.DataSource
+import com.example.whiteelephantgiftexchange.exampleData.PlayerData
+import com.example.whiteelephantgiftexchange.model.Player
 
 @Composable
 fun PlayersList(modifier: Modifier = Modifier) {
-    LazyColumn(
-        verticalArrangement = Arrangement.Top,
+    Column(
+        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier.fillMaxSize()
+        modifier = modifier.fillMaxWidth()
     ) {
-//        item {
-//            Text(
-//                text = "Players",
-//                textAlign = TextAlign.Center,
-//                fontSize = 24.sp,
-//                color = Color.White,
-//                modifier = modifier
-//                    .fillMaxSize()
-//                    .size(75.dp)
-//                    .background(color = Color.DarkGray)
-//                    .wrapContentHeight(Alignment.CenterVertically)
-//            )
-//        }
-
-        item {
+        Row(modifier = modifier.padding(16.dp)) {
             Button(
                 content = { Text(text = stringResource(R.string.import_contacts)) },
                 onClick = { /*TODO*/ },
-                modifier = modifier.padding(vertical = 16.dp)
+                modifier = modifier.weight(1f)
+            )
+            Button(
+                content = {
+                    Icon(
+                        painter = painterResource(R.drawable.upload_24px),
+                        contentDescription = null,
+                        modifier = modifier.padding(end = 4.dp))
+                    Text(text = stringResource(R.string.add_gift))
+                },
+                onClick = { /* onTakePhotoOrUpload() TODO*/ },
+                modifier = modifier
+                    .weight(1f)
+                    .padding(start = 4.dp)
             )
         }
 
-        DataSource().players.forEach {
-            item {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp)
-                ) {
+        Row(
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp)
+        ) {
+            Text(
+                text = "Ready",
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Bold,
+                modifier = modifier.weight(1f)
+            )
 
-                    if (it.giftUploaded) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.done_24px),
-                            contentDescription = null,
-                            modifier = modifier.padding(horizontal = 12.dp)
-                        )
-                    } else {
-                        Checkbox(checked = false, onCheckedChange = { /* TODO */ })
-                    }
+            Text(
+                text = "Players",
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                modifier = modifier.weight(2f)
+            )
+        }
 
-                    Text(
-                        text = "${it.name}",
-                        textAlign = TextAlign.Start,
+        LazyColumn(
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = modifier.fillMaxSize()
+        ) {
+            PlayerData().players.forEachIndexed { index, player ->
+                item {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
                         modifier = modifier
                             .fillMaxWidth()
-                            .padding(16.dp)
-                            .wrapContentHeight(align = Alignment.CenterVertically)
-                    )
+                            .padding(start = 48.dp)
+                    ) {
+
+                        if (player.giftUploaded) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.done_24px),
+                                contentDescription = null,
+                                modifier = modifier.padding(start = 16.dp, end = 24.dp)
+                            )
+                        }  else {
+                            Spacer(modifier = modifier.width(66.dp))
+                        }
+
+                        Row(
+                            modifier = modifier
+                                .fillMaxWidth()
+                                .padding(24.dp)
+                                .wrapContentHeight(align = Alignment.CenterVertically)
+                        ) {
+                            Text(
+                                text = "Player $index: ",
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.End
+                            )
+                            Text(text = "${player.name}", textAlign = TextAlign.End)
+                        }
+                    }
+                    Divider()
                 }
-                Divider()
             }
         }
     }
