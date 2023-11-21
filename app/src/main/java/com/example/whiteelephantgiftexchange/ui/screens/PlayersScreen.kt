@@ -1,11 +1,8 @@
-package com.example.whiteelephantgiftexchange
+package com.example.whiteelephantgiftexchange.ui.screens
 
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -27,14 +24,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.whiteelephantgiftexchange.R
 import com.example.whiteelephantgiftexchange.exampleData.DataSource
-
-class PlayersActivity : AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_players)
-    }
-}
 
 @Composable
 fun PlayersList(modifier: Modifier = Modifier) {
@@ -43,19 +34,19 @@ fun PlayersList(modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier.fillMaxSize()
     ) {
-        item {
-            Text(
-                text = "Players",
-                textAlign = TextAlign.Center,
-                fontSize = 24.sp,
-                color = Color.White,
-                modifier = modifier
-                    .fillMaxSize()
-                    .size(75.dp)
-                    .background(color = Color.DarkGray)
-                    .wrapContentHeight(Alignment.CenterVertically)
-            )
-        }
+//        item {
+//            Text(
+//                text = "Players",
+//                textAlign = TextAlign.Center,
+//                fontSize = 24.sp,
+//                color = Color.White,
+//                modifier = modifier
+//                    .fillMaxSize()
+//                    .size(75.dp)
+//                    .background(color = Color.DarkGray)
+//                    .wrapContentHeight(Alignment.CenterVertically)
+//            )
+//        }
 
         item {
             Button(
