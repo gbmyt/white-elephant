@@ -1,7 +1,7 @@
 package com.example.whiteelephantgiftexchange.ui
 
 import androidx.lifecycle.ViewModel
-import com.example.whiteelephantgiftexchange.exampleData.PlayerData
+import com.example.whiteelephantgiftexchange.data.PlayerData
 import com.example.whiteelephantgiftexchange.model.Player
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

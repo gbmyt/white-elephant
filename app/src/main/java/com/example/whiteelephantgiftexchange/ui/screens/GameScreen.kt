@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -38,6 +39,7 @@ import com.example.whiteelephantgiftexchange.ui.theme.WhiteElephantGiftExchangeT
 @Composable
 fun GameScreen(
     gameViewModel: GameViewModel = viewModel(),
+    onRulesButtonClicked: () -> Unit,
     onPlayerButtonClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -50,7 +52,7 @@ fun GameScreen(
     ) {
         val gameUiState by gameViewModel.uiState.collectAsState()
 
-        Header(onPlayerButtonClicked)
+        Header(onRulesButtonClicked, onPlayerButtonClicked)
         ImageGrid(players = gameViewModel.players)
     }
 }
@@ -117,29 +119,36 @@ fun ImageGrid(
 }
 
 @Composable
-fun Header(onPlayerButtonClicked: () -> Unit, modifier: Modifier = Modifier) {
+fun Header(
+    onRulesButtonClicked: () -> Unit,
+    onPlayerButtonClicked: () -> Unit,
+   modifier: Modifier = Modifier
+) {
     Row(modifier = modifier.padding(vertical = 16.dp)) {
         Button(
-            onClick = onPlayerButtonClicked,
+            onClick = onRulesButtonClicked,
             modifier = modifier.weight(1f)
         ) {
             Text(
-                text = "View Players",
+                text = stringResource(id = R.string.game_rules),
                 textAlign = TextAlign.Center
             )
         }
+
         Button(
-            onClick = { /* Reset Game TODO */},
-            modifier = modifier.weight(1f).padding(start = 8.dp)
+            onClick = onPlayerButtonClicked,
+            modifier = modifier
+                .weight(1f)
+                .padding(start = 8.dp)
         ) {
             Text(
-                text = "New Game",
+                text = stringResource(id = R.string.view_players),
                 textAlign = TextAlign.Center
             )
         }
     }
     Text(
-        text = "Round: 0",
+        text = stringResource(id = R.string.round_info),
         textAlign = TextAlign.Center,
         fontWeight = FontWeight.Bold,
         modifier = modifier.padding(bottom = 16.dp)

@@ -23,12 +23,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.whiteelephantgiftexchange.ui.screens.GameScreen
-import com.example.whiteelephantgiftexchange.ui.screens.PlayersList
+import com.example.whiteelephantgiftexchange.ui.screens.PlayersScreen
+import com.example.whiteelephantgiftexchange.ui.screens.RulesScreen
 import com.example.whiteelephantgiftexchange.ui.theme.WhiteElephantGiftExchangeTheme
 
 enum class WhiteElephantScreen(@StringRes val title: Int) {
     Images(title = R.string.app_name),
-    Players(title = R.string.players)
+    Rules(title = R.string.game_rules),
+    Players(title = R.string.players),
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -85,11 +87,17 @@ fun WhiteElephantGiftExchangeApp(
         ) {
             composable(route = WhiteElephantScreen.Images.name) {
                 GameScreen(
+                    onRulesButtonClicked = { navController.navigate(WhiteElephantScreen.Rules.name) },
                     onPlayerButtonClicked = { navController.navigate(WhiteElephantScreen.Players.name) },
                 )
             }
+
+            composable(route = WhiteElephantScreen.Rules.name) {
+                RulesScreen()
+            }
+
             composable(route = WhiteElephantScreen.Players.name) {
-                PlayersList()
+                PlayersScreen()
             }
         }
     }

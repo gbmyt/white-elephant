@@ -1,4 +1,4 @@
-package com.example.whiteelephantgiftexchange.exampleData
+package com.example.whiteelephantgiftexchange.data
 
 import com.example.whiteelephantgiftexchange.R
 import com.example.whiteelephantgiftexchange.model.Gift

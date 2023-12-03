@@ -26,9 +26,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.whiteelephantgiftexchange.R
-import com.example.whiteelephantgiftexchange.exampleData.PlayerData
-import com.example.whiteelephantgiftexchange.model.Player
+import com.example.whiteelephantgiftexchange.data.PlayerData
 
+@Composable
+fun PlayersScreen(modifier: Modifier = Modifier) {
+    PlayersList()
+}
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun PlayersList(modifier: Modifier = Modifier) {
@@ -140,5 +143,5 @@ fun PlayersList(modifier: Modifier = Modifier) {
 @Preview(showBackground = true)
 @Composable
 fun PlayersListPreview() {
-    PlayersList()
+    PlayersScreen()
 }
