@@ -48,6 +48,7 @@ fun GameScreen(
     modifier: Modifier = Modifier,
     gameViewModel: GameViewModel = viewModel(),
 ) {
+
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -58,8 +59,8 @@ fun GameScreen(
     ) {
         val gameUiState by gameViewModel.uiState.collectAsState()
 
-        Header(gameUiState, onRulesButtonClicked, onPlayerButtonClicked)
-        ImageGrid(players = gameViewModel.players)
+        Header(gameUiState, gameViewModel, onRulesButtonClicked, onPlayerButtonClicked)
+        ImageGrid(players = gameUiState.players)
     }
 }
 @OptIn(ExperimentalLayoutApi::class)
@@ -173,10 +174,13 @@ fun PlayerGiftCard(player: Player, modifier: Modifier = Modifier) {
 @Composable
 fun Header(
     gameUiState: GameUiState,
+    gameViewModel: GameViewModel,
     onRulesButtonClicked: () -> Unit,
     onPlayerButtonClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val startDialog = remember { mutableStateOf(false) }
+
     Row(modifier = modifier.padding(vertical = 16.dp)) {
         Button(
             onClick = onRulesButtonClicked,
@@ -195,17 +199,60 @@ fun Header(
                 .padding(start = 8.dp)
         ) {
             Text(
-                text = stringResource(id = R.string.view_players),
+                text = stringResource(id = R.string.players),
                 textAlign = TextAlign.Center
             )
         }
+
+        Button(
+            onClick = { startDialog.value = !startDialog.value },
+            modifier = modifier
+                .weight(1f)
+                .padding(start = 8.dp)
+        ) {
+            Text(
+                text = "Start",
+                textAlign = TextAlign.Center
+            )
+
+            if (gameViewModel.allPlayersReady && startDialog.value) {
+                AlertDialog(
+                    onDismissRequest = { startDialog.value = false },
+                    confirmButton = {
+                        TextButton(onClick = { startDialog.value = false }) {
+                            Text(text = "Yay!")
+                        }
+                    },
+                    text = { Text(text = "Starting Game...") }
+                )
+            } else if (!gameViewModel.allPlayersReady && startDialog.value) {
+                AlertDialog(
+                    onDismissRequest = { startDialog.value = false },
+                    confirmButton = {
+                        TextButton(onClick = { startDialog.value = false }) {
+                            Text(text = "Okay")
+                        }
+                    },
+                    text = { Text(text = "All Players Must Bring a Gift to Play!") }
+                )
+            }
+        }
     }
-    Text(
-        text = "${ stringResource(id = R.string.round_info) } ${gameUiState.round}",
-        textAlign = TextAlign.Center,
-        fontWeight = FontWeight.Bold,
-        modifier = modifier.padding(bottom = 16.dp)
-    )
+    Row {
+        Text(
+            text = "${stringResource(id = R.string.round_info)} ${gameUiState.round}",
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.Bold,
+            modifier = modifier.padding(bottom = 16.dp)
+        )
+
+        Text(
+            text = "Current Player: ${gameUiState.currentPlayer.name}",
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.Bold,
+            modifier = modifier.padding(start = 16.dp)
+        )
+    }
 }
 
 @Preview(showBackground = true)

@@ -17,6 +17,9 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -25,21 +28,25 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.whiteelephantgiftexchange.R
 import com.example.whiteelephantgiftexchange.data.PlayerData
+import com.example.whiteelephantgiftexchange.ui.GameViewModel
 
 @Composable
-fun PlayersScreen(modifier: Modifier = Modifier) {
-    PlayersList()
+fun PlayersScreen(gameViewModel: GameViewModel = viewModel(), modifier: Modifier = Modifier) {
+    PlayersList(gameViewModel)
 }
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun PlayersList(modifier: Modifier = Modifier) {
+fun PlayersList(gameViewModel: GameViewModel, modifier: Modifier = Modifier) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier.fillMaxWidth()
     ) {
+        val gameUiState by gameViewModel.uiState.collectAsState()
+
         FlowRow(maxItemsInEachRow = 2, modifier = modifier.padding(16.dp)) {
             Button(
                 content = { Text(text = stringResource(R.string.import_contacts)) },
@@ -67,7 +74,7 @@ fun PlayersList(modifier: Modifier = Modifier) {
                         modifier = modifier.padding(end = 4.dp))
                     Text(text = "Shuffle Player Turns")
                 },
-                onClick = { /*TODO*/ },
+                onClick = { gameViewModel.shufflePlayers() },
                 modifier = modifier.weight(1f)
             )
         }
@@ -99,7 +106,7 @@ fun PlayersList(modifier: Modifier = Modifier) {
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = modifier.fillMaxSize()
         ) {
-            PlayerData().players.forEachIndexed { index, player ->
+            gameUiState.players.forEachIndexed { index, player ->
                 item {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
