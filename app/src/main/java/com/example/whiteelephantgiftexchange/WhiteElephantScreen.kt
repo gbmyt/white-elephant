@@ -22,18 +22,20 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.whiteelephantgiftexchange.ui.screens.GiftImagesGrid
-import com.example.whiteelephantgiftexchange.ui.screens.PlayersList
+import com.example.whiteelephantgiftexchange.ui.screens.GameScreen
+import com.example.whiteelephantgiftexchange.ui.screens.PlayersScreen
+import com.example.whiteelephantgiftexchange.ui.screens.RulesScreen
 import com.example.whiteelephantgiftexchange.ui.theme.WhiteElephantGiftExchangeTheme
 
 enum class WhiteElephantScreen(@StringRes val title: Int) {
     Images(title = R.string.app_name),
-    Players(title = R.string.players)
+    Rules(title = R.string.game_rules),
+    Players(title = R.string.players),
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WhiteElephantAppBar(
+fun WhiteElephantGiftExchangeAppBar(
     currentScreen: WhiteElephantScreen,
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
@@ -60,7 +62,7 @@ fun WhiteElephantAppBar(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WhiteElephantApp(
+fun WhiteElephantGiftExchangeApp(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController()
 ) {
@@ -71,7 +73,7 @@ fun WhiteElephantApp(
 
     Scaffold(
         topBar = {
-            WhiteElephantAppBar(
+            WhiteElephantGiftExchangeAppBar(
                 canNavigateBack = navController.previousBackStackEntry != null,
                 currentScreen = currentScreen,
                 navigateUp = { navController.navigateUp() }
@@ -84,12 +86,18 @@ fun WhiteElephantApp(
             modifier = modifier.padding(innerPadding)
         ) {
             composable(route = WhiteElephantScreen.Images.name) {
-                GiftImagesGrid(
+                GameScreen(
+                    onRulesButtonClicked = { navController.navigate(WhiteElephantScreen.Rules.name) },
                     onPlayerButtonClicked = { navController.navigate(WhiteElephantScreen.Players.name) },
                 )
             }
+
+            composable(route = WhiteElephantScreen.Rules.name) {
+                RulesScreen()
+            }
+
             composable(route = WhiteElephantScreen.Players.name) {
-                PlayersList()
+                PlayersScreen()
             }
         }
     }
@@ -99,6 +107,6 @@ fun WhiteElephantApp(
 @Composable
 fun WhiteElephantAppPreview() {
     WhiteElephantGiftExchangeTheme {
-        WhiteElephantApp()
+        WhiteElephantGiftExchangeApp()
     }
 }

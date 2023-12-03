@@ -1,6 +1,14 @@
 <resources>
     <string name="app_name">White Elephant Gift Exchange</string>
-    <string name="import_contacts">Import Contacts</string>
     <string name="back_button">Back</string>
+
+    <string name="view_players">View Players</string>
     <string name="players">Players</string>
+    <string name="import_contacts">+ Import Contacts</string>
+    <string name="add_gift">Add Gift 🎁</string>
+
+    <string name="game_rules">Rules</string>
+    <string name="game_rules_header">How to Play</string>
+
+    <string name="round_info">Round: 0</string>
 </resources>
