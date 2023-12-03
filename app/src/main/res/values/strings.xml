@@ -1,14 +1,29 @@
 <resources>
+    <!-- App & Navigation -->
     <string name="app_name">White Elephant Gift Exchange</string>
     <string name="back_button">Back</string>
 
+    <!-- Player Info -->
     <string name="view_players">View Players</string>
     <string name="players">Players</string>
     <string name="import_contacts">+ Import Contacts</string>
     <string name="add_gift">Add Gift 🎁</string>
 
+    <!-- Game Rules -->
     <string name="game_rules">Rules</string>
     <string name="game_rules_header">How to Play</string>
 
-    <string name="round_info">Round: 0</string>
+    <!-- Current Game Info -->
+    <string name="round_info">Round: </string>
+    <string name="missing_gift">Still waiting for %s to upload a gift.</string>
+
+    <!-- Gift Actions Info -->
+    <string name="alertbox_unwrap_gift_confirmation">Unwrap %s\'s gift?</string>
+    <string name="alertbox_steal_gift_confirmation">Steal This Gift?</string>
+    <string name="alertbox_missing_gift_error">Sorry, %s hasn\'t uploaded their gift yet.</string>
+
+    <!-- Gift Info -->
+    <string name="unwrapped_gift">Unwrapped Gift</string>
+    <string name="wrapped_gift">Wrapped Gift</string>
+    <string name="gift_from_message">From: %s</string>
 </resources>

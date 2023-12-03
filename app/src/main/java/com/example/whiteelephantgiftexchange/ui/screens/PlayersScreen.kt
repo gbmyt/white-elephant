@@ -109,7 +109,7 @@ fun PlayersList(modifier: Modifier = Modifier) {
                             .padding(start = 48.dp)
                     ) {
 
-                        if (player.giftUploaded) {
+                        if (player.gift != null) {
                             Icon(
                                 painter = painterResource(id = R.drawable.done_24px),
                                 contentDescription = null,

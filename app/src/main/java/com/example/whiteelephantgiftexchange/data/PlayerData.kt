@@ -6,18 +6,18 @@ import com.example.whiteelephantgiftexchange.model.Player
 
 class PlayerData {
     val players = listOf<Player>(
-        Player("Grandma", gift = Gift(R.drawable.gloves),  giftUploaded = true),
-        Player("Grandpa", gift = Gift()),
-        Player("Mom", gift = Gift()),
-        Player("Joe", gift = Gift()),
-        Player("Lindsey", gift = Gift(R.drawable.gloves), giftUploaded = true),
-        Player("Georgia", gift = Gift()),
-        Player("Uncle Roger", gift = Gift()),
-        Player("Giselle", gift = Gift()),
-        Player("Ronald", gift = Gift()),
-        Player("Marie", gift = Gift(R.drawable.gloves), giftUploaded = true),
-        Player("Linda", gift = Gift(R.drawable.gloves), giftUploaded = true),
-        Player("Georgia", gift = Gift()),
-        Player("Uncle Ted", gift = Gift()),
+        Player("Grandma"),
+        Player("Grandpa", gift = Gift(R.drawable.gloves, false)),
+        Player("Mom"),
+        Player("Joe", gift = Gift(R.drawable.gloves, false)),
+        Player("Lindsey"),
+        Player("Georgia", gift = Gift(R.drawable.gloves)),
+        Player("Uncle Roger", gift = Gift(R.drawable.gloves)),
+        Player("Giselle", gift = Gift(R.drawable.gloves)),
+        Player("Ronald", gift = Gift(R.drawable.gloves, false)),
+        Player("Marie", gift = Gift(R.drawable.gloves)),
+        Player("Linda", gift = Gift(R.drawable.gloves)),
+        Player("Georgia", gift = Gift(R.drawable.gloves, false)),
+        Player("Uncle Ted"),
     )
 }
