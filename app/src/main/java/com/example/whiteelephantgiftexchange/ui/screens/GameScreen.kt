@@ -46,7 +46,7 @@ fun GameScreen(
     onRulesButtonClicked: () -> Unit,
     onPlayerButtonClicked: () -> Unit,
     modifier: Modifier = Modifier,
-    gameViewModel: GameViewModel = viewModel(),
+    gameViewModel: GameViewModel,
 ) {
 
     Column(

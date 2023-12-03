@@ -34,7 +34,7 @@ import com.example.whiteelephantgiftexchange.data.PlayerData
 import com.example.whiteelephantgiftexchange.ui.GameViewModel
 
 @Composable
-fun PlayersScreen(gameViewModel: GameViewModel = viewModel(), modifier: Modifier = Modifier) {
+fun PlayersScreen(gameViewModel: GameViewModel, modifier: Modifier = Modifier) {
     PlayersList(gameViewModel)
 }
 @OptIn(ExperimentalLayoutApi::class)
@@ -150,5 +150,6 @@ fun PlayersList(gameViewModel: GameViewModel, modifier: Modifier = Modifier) {
 @Preview(showBackground = true)
 @Composable
 fun PlayersListPreview() {
-    PlayersScreen()
+    val gameViewModel: GameViewModel = viewModel()
+    PlayersScreen(gameViewModel)
 }

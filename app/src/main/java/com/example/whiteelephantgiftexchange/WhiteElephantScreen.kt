@@ -17,11 +17,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.whiteelephantgiftexchange.ui.GameViewModel
 import com.example.whiteelephantgiftexchange.ui.screens.GameScreen
 import com.example.whiteelephantgiftexchange.ui.screens.PlayersScreen
 import com.example.whiteelephantgiftexchange.ui.screens.RulesScreen
@@ -64,7 +66,8 @@ fun WhiteElephantGiftExchangeAppBar(
 @Composable
 fun WhiteElephantGiftExchangeApp(
     modifier: Modifier = Modifier,
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    gameViewModel: GameViewModel = viewModel(),
 ) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentScreen = WhiteElephantScreen.valueOf(
@@ -87,6 +90,7 @@ fun WhiteElephantGiftExchangeApp(
         ) {
             composable(route = WhiteElephantScreen.Images.name) {
                 GameScreen(
+                    gameViewModel = gameViewModel,
                     onRulesButtonClicked = { navController.navigate(WhiteElephantScreen.Rules.name) },
                     onPlayerButtonClicked = { navController.navigate(WhiteElephantScreen.Players.name) },
                 )
@@ -97,7 +101,7 @@ fun WhiteElephantGiftExchangeApp(
             }
 
             composable(route = WhiteElephantScreen.Players.name) {
-                PlayersScreen()
+                PlayersScreen(gameViewModel = gameViewModel)
             }
         }
     }
