@@ -4,6 +4,7 @@ import androidx.annotation.DrawableRes
 import com.example.whiteelephantgiftexchange.R
 
 data class Gift(
-    @DrawableRes var image: Int = R.drawable.gift,
-    val isWrapped: Boolean = true,
+    @DrawableRes val image: Int,
+    var isWrapped: Boolean = true,
+    var giftReceiver: Player? = null
 )

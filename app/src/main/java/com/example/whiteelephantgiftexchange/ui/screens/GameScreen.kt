@@ -1,6 +1,5 @@
 package com.example.whiteelephantgiftexchange.ui.screens
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -14,15 +13,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -33,26 +37,28 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.whiteelephantgiftexchange.R
 import com.example.whiteelephantgiftexchange.WhiteElephantGiftExchangeApp
 import com.example.whiteelephantgiftexchange.model.Player
+import com.example.whiteelephantgiftexchange.ui.GameUiState
 import com.example.whiteelephantgiftexchange.ui.GameViewModel
 import com.example.whiteelephantgiftexchange.ui.theme.WhiteElephantGiftExchangeTheme
 
 @Composable
 fun GameScreen(
-    gameViewModel: GameViewModel = viewModel(),
     onRulesButtonClicked: () -> Unit,
     onPlayerButtonClicked: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    gameViewModel: GameViewModel = viewModel(),
 ) {
     Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
             .verticalScroll(rememberScrollState())
-            .padding(8.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+            .fillMaxSize()
+            .padding(dimensionResource(id = R.dimen.padding_small))
     ) {
         val gameUiState by gameViewModel.uiState.collectAsState()
 
-        Header(onRulesButtonClicked, onPlayerButtonClicked)
+        Header(gameUiState, onRulesButtonClicked, onPlayerButtonClicked)
         ImageGrid(players = gameViewModel.players)
     }
 }
@@ -68,50 +74,96 @@ fun ImageGrid(
         maxItemsInEachRow = 2
     ) {
         players.forEach { player ->
-            Card(
-                modifier = modifier
-                    .size(150.dp)
-                    .padding(4.dp)
-                    .weight(1f)
-            ) {
-                // On card click, An Alert Box should have the user confirm they want to unwrap the selected gift
-                Box(modifier = modifier
-                    .fillMaxSize()
-                    .clickable(onClick = {
-                        Log.d("CLICK LOG", "Button Clicked!")
+            PlayerGiftCard(player = player)
+        }
+    }
+}
 
-                        if (player.gift.isWrapped /* and player isn't gift giver TODO */) {
-                            // ask the player to confirm they want to open it
-                            // update the image resource displayed on the screen
-                            player.gift.image = R.drawable.gloves
-                        } else {
-                            // ask player to confirm they want to steal TODO
+@Composable
+fun PlayerGiftCard(player: Player, modifier: Modifier = Modifier) {
+    val openAlertDialog = remember { mutableStateOf(false) }
+
+    Card(
+        modifier = Modifier
+            .size(dimensionResource(id = R.dimen.gift_card_size))
+            .padding(dimensionResource(id = R.dimen.padding_xs))
+            .clickable(
+                onClick = {
+                    openAlertDialog.value = !openAlertDialog.value
+                }
+            )
+    ) {
+        // On card click, An Alert Box should have the user confirm they want to unwrap the selected gift
+        Box(contentAlignment = Alignment.Center, modifier = modifier.fillMaxSize()) {
+
+            val alertDialogText = when {
+                player.gift == null -> stringResource(id = R.string.alertbox_missing_gift_error, player.name)
+                (player.gift != null && player.gift.isWrapped) -> stringResource(id = R.string.alertbox_unwrap_gift_confirmation, player.name)
+                else -> stringResource(R.string.alertbox_steal_gift_confirmation)
+            }
+
+            if (openAlertDialog.value) {
+                AlertDialog(
+                    text = { Text(text = alertDialogText) },
+                    onDismissRequest = { openAlertDialog.value = false },
+                    confirmButton = {
+                        if (player.gift != null) {
+                            TextButton(
+                                onClick = {
+                                    openAlertDialog.value = false
+
+                                    if (player.gift.isWrapped) {
+                                        if (player.gift != null) player.gift.isWrapped = false
+                                        // TODO: Set the gift receiver to the player who clicked 'unwrap'
+                                    } else {
+                                        // Steal gift logic
+                                        // player.gift.giftReceiver = currentPlayer
+                                    }
+
+                            }) {
+                                Text("Confirm")
+                            }
                         }
-                    })
+                    },
+                    dismissButton = {
+                        TextButton(onClick = {
+                            openAlertDialog.value = false
+                        }) { Text("Exit") }
+                    }
+                )
+            }
+
+            if (player.gift?.image == null)  {
+                Text(
+                    text = stringResource(id = R.string.missing_gift, player.name),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium))
+                )
+            } else {
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = modifier
                 ) {
                     Text(
-                        text = player.name,
+                        text = stringResource(id = R.string.gift_from_message, player.name),
                         textAlign = TextAlign.Start,
-                        color = Color.DarkGray,
-                        modifier = modifier.padding(start = 8.dp)
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier.padding(bottom = dimensionResource(id = R.dimen.padding_small))
                     )
 
                     Image(
-                        painter = painterResource(id = player.gift.image),
-                        contentDescription = null,
+                        painter = if (player.gift.isWrapped) painterResource(id = R.drawable.gift) else painterResource(
+                            id = player.gift.image
+                        ),
+                        contentDescription = if (player.gift.isWrapped) stringResource(id = R.string.wrapped_gift) else stringResource(
+                            id = R.string.unwrapped_gift
+                        ),
                         modifier = modifier
-                            .padding(24.dp)
-                            .fillMaxSize()
+                            .size(dimensionResource(id = R.dimen.image_size))
+                            // .align(Alignment.Center)
+                            .padding(dimensionResource(id = R.dimen.padding_xs))
                     )
-
-//                    Text(
-//                        text = if (item.isWrapped) "wrapped" else "unwrapped",
-//                        fontWeight = if (item.isWrapped) FontWeight.Normal else FontWeight.Bold,
-//                        color = Color.DarkGray,
-//                        modifier = modifier
-//                            .align(Alignment.BottomEnd)
-//                            .padding(horizontal = 4.dp)
-//                    )
                 }
             }
         }
@@ -120,9 +172,10 @@ fun ImageGrid(
 
 @Composable
 fun Header(
+    gameUiState: GameUiState,
     onRulesButtonClicked: () -> Unit,
     onPlayerButtonClicked: () -> Unit,
-   modifier: Modifier = Modifier
+    modifier: Modifier = Modifier
 ) {
     Row(modifier = modifier.padding(vertical = 16.dp)) {
         Button(
@@ -148,7 +201,7 @@ fun Header(
         }
     }
     Text(
-        text = stringResource(id = R.string.round_info),
+        text = "${ stringResource(id = R.string.round_info) } ${gameUiState.round}",
         textAlign = TextAlign.Center,
         fontWeight = FontWeight.Bold,
         modifier = modifier.padding(bottom = 16.dp)

@@ -11,7 +11,7 @@ class GameViewModel: ViewModel() {
     // GAME STATE
 
     // Backing property to avoid state updates from other classes
-    private val _uiState = MutableStateFlow(GameUiState(0)) // Private State
+    private val _uiState = MutableStateFlow(GameUiState()) // Private State
     val uiState: StateFlow<GameUiState> = _uiState.asStateFlow() // State the UI can safely consume
 
     var players: List<Player> = PlayerData().players
