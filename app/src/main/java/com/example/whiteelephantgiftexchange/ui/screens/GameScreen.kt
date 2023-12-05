@@ -1,5 +1,6 @@
 package com.example.whiteelephantgiftexchange.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -16,6 +17,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -33,7 +35,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.whiteelephantgiftexchange.R
 import com.example.whiteelephantgiftexchange.WhiteElephantGiftExchangeApp
 import com.example.whiteelephantgiftexchange.model.Player
@@ -60,31 +61,39 @@ fun GameScreen(
         val gameUiState by gameViewModel.uiState.collectAsState()
 
         Header(gameUiState, gameViewModel, onRulesButtonClicked, onPlayerButtonClicked)
-        ImageGrid(players = gameUiState.players)
+        ImageGrid(players = gameUiState.players, gameViewModel = gameViewModel, gameUiState = gameUiState)
     }
 }
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ImageGrid(
     players: List<Player>,
-    modifier: Modifier = Modifier) {
-    // Image Grid with two columns
+    modifier: Modifier = Modifier,
+    gameUiState: GameUiState,
+    gameViewModel: GameViewModel
+) {
     FlowRow(
         modifier = modifier,
         horizontalArrangement = Arrangement.Center,
         maxItemsInEachRow = 2
     ) {
-        players.forEach { player ->
-            PlayerGiftCard(player = player)
+        players.forEach { playerFromList ->
+            PlayerGiftCard(player = playerFromList, gameViewModel = gameViewModel, gameUiState = gameUiState)
         }
     }
 }
 
 @Composable
-fun PlayerGiftCard(player: Player, modifier: Modifier = Modifier) {
+fun PlayerGiftCard(
+    player: Player,
+    modifier: Modifier = Modifier,
+    gameViewModel: GameViewModel,
+    gameUiState: GameUiState
+) {
     val openAlertDialog = remember { mutableStateOf(false) }
 
     Card(
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         modifier = Modifier
             .size(dimensionResource(id = R.dimen.gift_card_size))
             .padding(dimensionResource(id = R.dimen.padding_xs))
@@ -104,34 +113,47 @@ fun PlayerGiftCard(player: Player, modifier: Modifier = Modifier) {
             }
 
             if (openAlertDialog.value) {
-                AlertDialog(
-                    text = { Text(text = alertDialogText) },
-                    onDismissRequest = { openAlertDialog.value = false },
-                    confirmButton = {
-                        if (player.gift != null) {
+                Log.d("ERROR", "${gameUiState.round}")
+                if (gameUiState.round <= 0) {
+                    AlertDialog(
+                        text = { Text(text = "Start a game to view other player's gifts") },
+                        onDismissRequest = { openAlertDialog.value = false },
+                        confirmButton = {
                             TextButton(
-                                onClick = {
-                                    openAlertDialog.value = false
-
-                                    if (player.gift.isWrapped) {
-                                        if (player.gift != null) player.gift.isWrapped = false
-                                        // TODO: Set the gift receiver to the player who clicked 'unwrap'
-                                    } else {
-                                        // Steal gift logic
-                                        // player.gift.giftReceiver = currentPlayer
-                                    }
-
-                            }) {
-                                Text("Confirm")
+                                onClick = { openAlertDialog.value = false }) {
+                                Text("Okay")
                             }
                         }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = {
-                            openAlertDialog.value = false
-                        }) { Text("Exit") }
-                    }
-                )
+                    )
+                } else if (gameUiState.round > 0 && gameUiState.round <= gameUiState.players.size) {
+                    AlertDialog(
+                        text = { Text(text = alertDialogText) },
+                        onDismissRequest = { openAlertDialog.value = false },
+                        confirmButton = {
+                            if (player.gift != null) {
+                                TextButton(
+                                    onClick = {
+                                        openAlertDialog.value = false
+
+                                        if (player.gift.isWrapped) {
+                                            gameViewModel.onUnwrapGift(player = player)
+                                        } else {
+                                            // Steal gift logic
+                                            gameViewModel.onStealGift(player = player)
+                                        }
+
+                                    }) {
+                                    Text("Confirm")
+                                }
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = {
+                                openAlertDialog.value = false
+                            }) { Text("Exit") }
+                        }
+                    )
+                }
             }
 
             if (player.gift?.image == null)  {
@@ -152,6 +174,14 @@ fun PlayerGiftCard(player: Player, modifier: Modifier = Modifier) {
                         style = MaterialTheme.typography.labelSmall,
                         modifier = Modifier.padding(bottom = dimensionResource(id = R.dimen.padding_small))
                     )
+                    if (player.gift.giftReceiver?.name != null) {
+                        Text(
+                            text = "Claimed by: ${player.gift.giftReceiver?.name}", // fix this to prevent players from 'receiving' more than one gift at a time
+                            textAlign = TextAlign.Start,
+                            style = MaterialTheme.typography.labelSmall,
+                            modifier = Modifier.padding(bottom = dimensionResource(id = R.dimen.padding_small))
+                        )
+                    }
 
                     Image(
                         painter = if (player.gift.isWrapped) painterResource(id = R.drawable.gift) else painterResource(
@@ -162,7 +192,6 @@ fun PlayerGiftCard(player: Player, modifier: Modifier = Modifier) {
                         ),
                         modifier = modifier
                             .size(dimensionResource(id = R.dimen.image_size))
-                            // .align(Alignment.Center)
                             .padding(dimensionResource(id = R.dimen.padding_xs))
                     )
                 }
@@ -205,7 +234,12 @@ fun Header(
         }
 
         Button(
-            onClick = { startDialog.value = !startDialog.value },
+            onClick = {
+                if (gameUiState.round == 0) {
+                    startDialog.value = true
+                    gameViewModel.onGameStart()
+                }
+            },
             modifier = modifier
                 .weight(1f)
                 .padding(start = 8.dp)
@@ -215,43 +249,36 @@ fun Header(
                 textAlign = TextAlign.Center
             )
 
-            if (gameViewModel.allPlayersReady && startDialog.value) {
+            if (startDialog.value) {
                 AlertDialog(
                     onDismissRequest = { startDialog.value = false },
                     confirmButton = {
                         TextButton(onClick = { startDialog.value = false }) {
-                            Text(text = "Yay!")
+                            Text(text =  "Okay")
                         }
                     },
-                    text = { Text(text = "Starting Game...") }
-                )
-            } else if (!gameViewModel.allPlayersReady && startDialog.value) {
-                AlertDialog(
-                    onDismissRequest = { startDialog.value = false },
-                    confirmButton = {
-                        TextButton(onClick = { startDialog.value = false }) {
-                            Text(text = "Okay")
-                        }
-                    },
-                    text = { Text(text = "All Players Must Bring a Gift to Play!") }
+                    text = { Text(text = if (gameViewModel.allPlayersReady) "Starting New Game...the first player is ${gameUiState.currentPlayer.name}" else "All Players Must Bring a Gift to Play! Make sure everyone has brought a gift and try again.") }
                 )
             }
         }
     }
-    Row {
-        Text(
-            text = "${stringResource(id = R.string.round_info)} ${gameUiState.round}",
-            textAlign = TextAlign.Center,
-            fontWeight = FontWeight.Bold,
-            modifier = modifier.padding(bottom = 16.dp)
-        )
 
-        Text(
-            text = "Current Player: ${gameUiState.currentPlayer.name}",
-            textAlign = TextAlign.Center,
-            fontWeight = FontWeight.Bold,
-            modifier = modifier.padding(start = 16.dp)
-        )
+    if (gameUiState.round > 0) {
+        Row {
+            Text(
+                text = "${stringResource(id = R.string.round_info)} ${gameUiState.round}",
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Bold,
+                modifier = modifier.padding(bottom = 16.dp)
+            )
+
+            Text(
+                text = "Current Player: ${gameUiState.currentPlayer.name}",
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Bold,
+                modifier = modifier.padding(start = 16.dp)
+            )
+        }
     }
 }
 

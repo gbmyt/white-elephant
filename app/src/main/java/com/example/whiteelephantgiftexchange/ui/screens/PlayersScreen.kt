@@ -133,7 +133,7 @@ fun PlayersList(gameViewModel: GameViewModel, modifier: Modifier = Modifier) {
                                 .wrapContentHeight(align = Alignment.CenterVertically)
                         ) {
                             Text(
-                                text = "Player $index: ",
+                                text = "Player ${index + 1}: ",
                                 fontWeight = FontWeight.Bold,
                                 textAlign = TextAlign.End
                             )
