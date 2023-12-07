@@ -2,6 +2,8 @@ package com.example.whiteelephantgiftexchange.ui
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import com.example.whiteelephantgiftexchange.R
+import com.example.whiteelephantgiftexchange.model.Gift
 import com.example.whiteelephantgiftexchange.model.Player
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,7 +30,7 @@ class GameViewModel: ViewModel() {
     fun shufflePlayers() {
         val shuffledPlayers = _uiState.value.players.shuffled()
         _uiState.update { currentState ->
-            currentState.copy(players = shuffledPlayers, currentPlayer = shuffledPlayers[0])
+            currentState.copy(players = shuffledPlayers, currentPlayer = if (currentState.round == 0) shuffledPlayers[0] else currentState.currentPlayer)
         }
     }
 
@@ -57,6 +59,13 @@ class GameViewModel: ViewModel() {
         }
     }
     private fun onStartNewRound() {
+            // Clear player records of gifts received during the previous round
+            _uiState.value.gifts.forEach {
+                if (it.giftReceiver != null) {
+                    val player = it.giftReceiver
+                    player?.giftsReceivedThisRound =  mutableListOf(it)
+                }
+            }
 
             // Update the current round int whether or not its the final round
             _uiState.update { currentState ->
@@ -77,17 +86,26 @@ class GameViewModel: ViewModel() {
         // fun onChooseGift() {}
 
         fun onStealGift(player: Player) {
-            // ❌ TODO: you can only be the receiver of one gift at a time
+            if (
+                (player.gift?.giftReceiver != null) &&
+                (player.gift.giftReceiver != _uiState.value.currentPlayer) &&
+                (!player.gift.isWrapped)
+            ) {
+                if (_uiState.value.currentPlayer.giftsReceivedThisRound.contains(player.gift)) {
+                    Log.d("ERROR", "You can't steal a gift that you've already claimed during this round.")
+                    "You can't steal a gift that you've already claimed during this round."
+                } else {
+                    val oldGiftReceiver: Player = player.gift.giftReceiver!!
+                    _uiState.value.currentPlayer.giftsReceivedThisRound.add(player.gift)
+                    player.gift.giftReceiver = _uiState.value.currentPlayer
 
-            if ((player.gift?.giftReceiver != null) && (player.gift.giftReceiver != _uiState.value.currentPlayer)) {
-                val oldGiftReceiver: Player = player.gift.giftReceiver!!
-                player.gift.giftReceiver = _uiState.value.currentPlayer
-
-                // ❌ TODO: Some kind of alert to let players know the currentPlayer/round has changed
-                _uiState.update { currentState ->
-                    currentState.copy(currentPlayer = oldGiftReceiver)
+                    // ❌ TODO: Some kind of alert to let players know the currentPlayer/round has changed
+                    _uiState.update { currentState ->
+                        currentState.copy(currentPlayer = oldGiftReceiver)
+                    }
                 }
 
+                Log.d("ERROR", _uiState.value.currentPlayer.giftsReceivedThisRound.toString())
             } else if ((player.gift?.giftReceiver != null) && (player.gift.giftReceiver == _uiState.value.currentPlayer)) {
                 Log.d("ERROR", "You can't steal a gift that you've already claimed.")
             } else {
@@ -96,9 +114,14 @@ class GameViewModel: ViewModel() {
         }
 
         fun onUnwrapGift(player: Player) {
-            if (player.gift != null) player.gift.isWrapped = false
-            player.gift?.giftReceiver = _uiState.value.currentPlayer
-            onStartNewRound()
+            if (player.gift != null) {
+                player.gift.isWrapped = false
+                player.gift?.giftReceiver = _uiState.value.currentPlayer
+                _uiState.value.currentPlayer.giftsReceivedThisRound.add(player.gift)
+                onStartNewRound()
+            } else {
+                "You cant open a missing gift"
+            }
         }
 
     init {
