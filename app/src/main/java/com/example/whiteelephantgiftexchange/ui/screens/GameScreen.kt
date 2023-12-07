@@ -1,5 +1,6 @@
 package com.example.whiteelephantgiftexchange.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -91,6 +92,7 @@ fun PlayerGiftCard(
 ) {
     val openAlertDialog = remember { mutableStateOf(false) }
     var showStealGiftErrorDialog = remember { mutableStateOf(false) }
+    var showGameOverDialog = remember { mutableStateOf(false) }
 
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
@@ -125,7 +127,7 @@ fun PlayerGiftCard(
                         }
                     )
 
-                } else if (gameUiState.round > 0 && gameUiState.round <= gameUiState.players.size) {
+                } else if (gameUiState.round > 0 && gameUiState.round <= gameUiState.players.size + 1) {
                     AlertDialog(
                         text = { Text(text = alertDialogText) },
                         onDismissRequest = { openAlertDialog.value = false },
@@ -139,8 +141,11 @@ fun PlayerGiftCard(
                                             gameViewModel.onUnwrapGift(player = player)
                                         } else {
                                             val stealResult = gameViewModel.onStealGift(player = player)
+
                                             if (stealResult == R.string.gift_claimed_error) {
                                                 showStealGiftErrorDialog.value = true
+                                            } else if (stealResult == R.string.game_over_msg) {
+                                                showGameOverDialog.value = true
                                             }
                                         }
 
@@ -168,6 +173,22 @@ fun PlayerGiftCard(
                             showStealGiftErrorDialog.value = false
                         }) { Text(stringResource(R.string.try_again_text)) }
                     }
+                )
+            }
+
+            if (showGameOverDialog.value) {
+                AlertDialog(
+                    text = { Text(text = stringResource(id = R.string.game_over_msg)) },
+                    onDismissRequest = {
+                        showGameOverDialog.value = false
+                   },
+                confirmButton = {},
+                dismissButton = {
+                    TextButton(onClick = {
+                        showGameOverDialog.value = false
+                        gameViewModel.endGame()
+                    }) { Text(stringResource(R.string.play_again_text)) }
+                }
                 )
             }
 
@@ -293,6 +314,13 @@ fun Header(
 
             Text(
                 text = stringResource(R.string.current_player, gameUiState.currentPlayer.name),
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Bold,
+                modifier = modifier.padding(start = 16.dp)
+            )
+
+            Text(
+                text = "Final Round: ${gameViewModel.isFinalRound}",
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Bold,
                 modifier = modifier.padding(start = 16.dp)

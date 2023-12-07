@@ -43,4 +43,7 @@
     <string name="steal_unopened_gift_error">You can\'t steal an unopened gift.</string>
     <string name="start_a_game_msg">Start a game to view other player\'s gifts</string>
     <string name="gift_claimed_error">You can\'t steal a gift that you\'ve already claimed during this round.</string>
+    <string name="game_over_msg">Game Over! Hope you enjoy your gifts</string>
+    <string name="play_again_text">Play Again</string>
+    <string name="cant_open_missing_gift">You cant open a missing gift</string>
 </resources>
