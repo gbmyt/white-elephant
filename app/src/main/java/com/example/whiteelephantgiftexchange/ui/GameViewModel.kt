@@ -2,6 +2,7 @@ package com.example.whiteelephantgiftexchange.ui
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import com.example.whiteelephantgiftexchange.R
 import com.example.whiteelephantgiftexchange.model.Player
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,7 +12,7 @@ import kotlinx.coroutines.flow.update
 class GameViewModel: ViewModel() {
     // GAME STATE
     var allPlayersReady: Boolean = false // true when every player has uploaded a gift
-    private var isFinalRound: Boolean = false // is true when all players have gone once, but the first player still needs to choose whether to keep or steal their gift.
+    var isFinalRound: Boolean = false // is true when all players have gone once, but the first player still needs to choose whether to keep or steal their gift.
 
     // Use a backing property to preserve private state from external modifications
     private val _uiState = MutableStateFlow(GameUiState()) // Private State
@@ -25,18 +26,31 @@ class GameViewModel: ViewModel() {
         _uiState.value = GameUiState(round = 0)
         shufflePlayers()
     }
+
+    fun endGame() {
+        resetGame()
+    }
     fun shufflePlayers() {
         val shuffledPlayers = _uiState.value.players.shuffled()
         _uiState.update { currentState ->
-            currentState.copy(players = shuffledPlayers, currentPlayer = shuffledPlayers[0])
+            currentState.copy(players = shuffledPlayers, currentPlayer = if (currentState.round == 0) shuffledPlayers[0] else currentState.currentPlayer)
         }
     }
 
     // Game Util TODOs
     // fun onTakeOrUploadImage() {}
-    private fun onStartRound() {
-        _uiState.update { currentState ->
-            currentState.copy(round = currentState.round + 1)
+
+    private fun clearGiftsReceivedThisRoundList() {
+        // Clear player records of gifts received during the previous round
+        _uiState.value.players.forEach {
+            it.giftsReceivedThisRound = mutableListOf()
+        }
+
+        _uiState.value.gifts.forEach {
+            if (it.giftReceiver != null) {
+                it.giftReceiver!!.giftsReceivedThisRound = mutableListOf(it)
+            }
+
         }
     }
 
@@ -57,48 +71,68 @@ class GameViewModel: ViewModel() {
         }
     }
     private fun onStartNewRound() {
+        clearGiftsReceivedThisRoundList()
 
             // Update the current round int whether or not its the final round
             _uiState.update { currentState ->
-                val nextPlayerIndex = currentState.round
 
                 // if it is NOT the final round update to the next player from the shuffled list of players
-                if (currentState.round <= playerCount && currentState.round != 0) {
-                    currentState.copy(round = currentState.round + 1, currentPlayer = currentState.players[nextPlayerIndex])
+                if ((currentState.round == _uiState.value.players.size) ||  (currentState.round == 0 && _uiState.value.players.size == 1)) {
+                    isFinalRound = true
+                    currentState.copy(
+                        round = currentState.round + 1,
+                        currentPlayer = currentState.players[0])
                 } else {
-                    // otherwise just set the current player to P1 and set finalRound to 'true'
-                    if (currentState.round !== 0) isFinalRound = true
-                    currentState.copy(round = currentState.round + 1, currentPlayer = currentState.players[0])
+                    val nextPlayerIndex = currentState.round
+
+                    currentState.copy(
+                        round = currentState.round + 1,
+                        currentPlayer = currentState.players[nextPlayerIndex]
+                    )
                 }
             }
         }
 
-    // Round-Level TODOs
-        // fun onChooseGift() {}
+        fun onStealGift(player: Player): Int {
+            return if (
+                (player.gift?.giftReceiver != null) &&
+                (player.gift.giftReceiver != _uiState.value.currentPlayer) &&
+                (!player.gift.isWrapped)
+            ) {
+                if (_uiState.value.currentPlayer.giftsReceivedThisRound.contains(player.gift)) {
+                    return R.string.gift_claimed_error
+                } else {
+                    val oldGiftReceiver: Player = player.gift.giftReceiver!!
+                    _uiState.value.currentPlayer.giftsReceivedThisRound.add(player.gift)
+                    player.gift.giftReceiver = _uiState.value.currentPlayer
 
-        fun onStealGift(player: Player) {
-            // ❌ TODO: you can only be the receiver of one gift at a time
+                    if (isFinalRound) {
+                        Log.d("GOT HERE", "in unwrap gift")
+                        return R.string.game_over_msg
+                    } else {
+                        _uiState.update { currentState ->
+                            currentState.copy(currentPlayer = oldGiftReceiver)
+                        }
+                        -1
+                    }
 
-            if ((player.gift?.giftReceiver != null) && (player.gift.giftReceiver != _uiState.value.currentPlayer)) {
-                val oldGiftReceiver: Player = player.gift.giftReceiver!!
-                player.gift.giftReceiver = _uiState.value.currentPlayer
-
-                // ❌ TODO: Some kind of alert to let players know the currentPlayer/round has changed
-                _uiState.update { currentState ->
-                    currentState.copy(currentPlayer = oldGiftReceiver)
                 }
 
             } else if ((player.gift?.giftReceiver != null) && (player.gift.giftReceiver == _uiState.value.currentPlayer)) {
-                Log.d("ERROR", "You can't steal a gift that you've already claimed.")
+                return R.string.current_gift_error
             } else {
-                Log.d("ERROR", "You can't steal an unopened gift.")
+                return R.string.steal_unopened_gift_error
             }
         }
 
         fun onUnwrapGift(player: Player) {
-            if (player.gift != null) player.gift.isWrapped = false
-            player.gift?.giftReceiver = _uiState.value.currentPlayer
-            onStartNewRound()
+            if (player.gift != null) {
+                player.gift.isWrapped = false
+                player.gift.giftReceiver = _uiState.value.currentPlayer
+                onStartNewRound()
+            } else {
+                R.string.cant_open_missing_gift
+            }
         }
 
     init {

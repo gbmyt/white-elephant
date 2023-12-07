@@ -91,6 +91,8 @@ fun PlayerGiftCard(
     gameUiState: GameUiState
 ) {
     val openAlertDialog = remember { mutableStateOf(false) }
+    var showStealGiftErrorDialog = remember { mutableStateOf(false) }
+    var showGameOverDialog = remember { mutableStateOf(false) }
 
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
@@ -105,7 +107,6 @@ fun PlayerGiftCard(
     ) {
         // On card click, An Alert Box should have the user confirm they want to unwrap the selected gift
         Box(contentAlignment = Alignment.Center, modifier = modifier.fillMaxSize()) {
-
             val alertDialogText = when {
                 player.gift == null -> stringResource(id = R.string.alertbox_missing_gift_error, player.name)
                 (player.gift != null && player.gift.isWrapped) -> stringResource(id = R.string.alertbox_unwrap_gift_confirmation, player.name)
@@ -113,19 +114,20 @@ fun PlayerGiftCard(
             }
 
             if (openAlertDialog.value) {
-                Log.d("ERROR", "${gameUiState.round}")
                 if (gameUiState.round <= 0) {
+
                     AlertDialog(
-                        text = { Text(text = "Start a game to view other player's gifts") },
+                        text = { Text(text = stringResource(R.string.start_a_game_msg)) },
                         onDismissRequest = { openAlertDialog.value = false },
                         confirmButton = {
                             TextButton(
                                 onClick = { openAlertDialog.value = false }) {
-                                Text("Okay")
+                                Text(stringResource(id = R.string.okay_text))
                             }
                         }
                     )
-                } else if (gameUiState.round > 0 && gameUiState.round <= gameUiState.players.size) {
+
+                } else if (gameUiState.round > 0 && gameUiState.round <= gameUiState.players.size + 1) {
                     AlertDialog(
                         text = { Text(text = alertDialogText) },
                         onDismissRequest = { openAlertDialog.value = false },
@@ -138,23 +140,58 @@ fun PlayerGiftCard(
                                         if (player.gift.isWrapped) {
                                             gameViewModel.onUnwrapGift(player = player)
                                         } else {
-                                            // Steal gift logic
-                                            gameViewModel.onStealGift(player = player)
+                                            val stealResult = gameViewModel.onStealGift(player = player)
+
+                                            if (stealResult == R.string.gift_claimed_error) {
+                                                showStealGiftErrorDialog.value = true
+                                            } else if (stealResult == R.string.game_over_msg) {
+                                                showGameOverDialog.value = true
+                                            }
                                         }
 
                                     }) {
-                                    Text("Confirm")
+                                    Text(stringResource(R.string.confirm_btn_text))
                                 }
                             }
                         },
                         dismissButton = {
                             TextButton(onClick = {
                                 openAlertDialog.value = false
-                            }) { Text("Exit") }
+                            }) { Text(stringResource(R.string.exit_txt)) }
                         }
                     )
                 }
             }
+
+            if (showStealGiftErrorDialog.value) {
+                AlertDialog(
+                    text = { Text(text = stringResource(id = R.string.gift_claimed_error)) },
+                    onDismissRequest = { showStealGiftErrorDialog.value = false },
+                    confirmButton = {},
+                    dismissButton = {
+                        TextButton(onClick = {
+                            showStealGiftErrorDialog.value = false
+                        }) { Text(stringResource(R.string.try_again_text)) }
+                    }
+                )
+            }
+
+            if (showGameOverDialog.value) {
+                AlertDialog(
+                    text = { Text(text = stringResource(id = R.string.game_over_msg)) },
+                    onDismissRequest = {
+                        showGameOverDialog.value = false
+                   },
+                confirmButton = {},
+                dismissButton = {
+                    TextButton(onClick = {
+                        showGameOverDialog.value = false
+                        gameViewModel.endGame()
+                    }) { Text(stringResource(R.string.play_again_text)) }
+                }
+                )
+            }
+
 
             if (player.gift?.image == null)  {
                 Text(
@@ -176,7 +213,7 @@ fun PlayerGiftCard(
                     )
                     if (player.gift.giftReceiver?.name != null) {
                         Text(
-                            text = "Claimed by: ${player.gift.giftReceiver?.name}", // fix this to prevent players from 'receiving' more than one gift at a time
+                            text = stringResource(R.string.claimed_by_msg, player.gift.giftReceiver!!.name), // fix this to prevent players from 'receiving' more than one gift at a time
                             textAlign = TextAlign.Start,
                             style = MaterialTheme.typography.labelSmall,
                             modifier = Modifier.padding(bottom = dimensionResource(id = R.dimen.padding_small))
@@ -245,7 +282,7 @@ fun Header(
                 .padding(start = 8.dp)
         ) {
             Text(
-                text = "Start",
+                text = stringResource(R.string.start_text),
                 textAlign = TextAlign.Center
             )
 
@@ -254,10 +291,13 @@ fun Header(
                     onDismissRequest = { startDialog.value = false },
                     confirmButton = {
                         TextButton(onClick = { startDialog.value = false }) {
-                            Text(text =  "Okay")
+                            Text(text = stringResource(R.string.okay_text))
                         }
                     },
-                    text = { Text(text = if (gameViewModel.allPlayersReady) "Starting New Game...the first player is ${gameUiState.currentPlayer.name}" else "All Players Must Bring a Gift to Play! Make sure everyone has brought a gift and try again.") }
+                    text = { Text(text = if (gameViewModel.allPlayersReady) stringResource(R.string.starting_new_game_msg, gameUiState.currentPlayer.name) else stringResource(
+                        R.string.start_new_game_error_msg
+                    )
+                    ) }
                 )
             }
         }
@@ -273,12 +313,20 @@ fun Header(
             )
 
             Text(
-                text = "Current Player: ${gameUiState.currentPlayer.name}",
+                text = stringResource(R.string.current_player, gameUiState.currentPlayer.name),
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Bold,
+                modifier = modifier.padding(start = 16.dp)
+            )
+
+            Text(
+                text = "Final Round: ${gameViewModel.isFinalRound}",
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Bold,
                 modifier = modifier.padding(start = 16.dp)
             )
         }
+
     }
 }
 
