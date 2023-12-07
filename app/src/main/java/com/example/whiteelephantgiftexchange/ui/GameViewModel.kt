@@ -60,12 +60,17 @@ class GameViewModel: ViewModel() {
     }
     private fun onStartNewRound() {
             // Clear player records of gifts received during the previous round
+            _uiState.value.players.forEach {
+                it.giftsReceivedThisRound = mutableListOf()
+            }
+
             _uiState.value.gifts.forEach {
                 if (it.giftReceiver != null) {
-                    val player = it.giftReceiver
-                    player?.giftsReceivedThisRound =  mutableListOf(it)
+                    it.giftReceiver!!.giftsReceivedThisRound = mutableListOf(it)
                 }
+
             }
+
 
             // Update the current round int whether or not its the final round
             _uiState.update { currentState ->
@@ -73,11 +78,15 @@ class GameViewModel: ViewModel() {
 
                 // if it is NOT the final round update to the next player from the shuffled list of players
                 if (currentState.round <= playerCount && currentState.round != 0) {
-                    currentState.copy(round = currentState.round + 1, currentPlayer = currentState.players[nextPlayerIndex])
+                    currentState.copy(
+                        round = currentState.round + 1,
+                        currentPlayer = currentState.players[nextPlayerIndex])
                 } else {
                     // otherwise just set the current player to P1 and set finalRound to 'true'
                     if (currentState.round !== 0) isFinalRound = true
-                    currentState.copy(round = currentState.round + 1, currentPlayer = currentState.players[0])
+                    currentState.copy(
+                        round = currentState.round + 1,
+                        currentPlayer = currentState.players[0])
                 }
             }
         }
@@ -85,39 +94,41 @@ class GameViewModel: ViewModel() {
     // Round-Level TODOs
         // fun onChooseGift() {}
 
-        fun onStealGift(player: Player) {
+        fun onStealGift(player: Player): Int {
             if (
                 (player.gift?.giftReceiver != null) &&
                 (player.gift.giftReceiver != _uiState.value.currentPlayer) &&
                 (!player.gift.isWrapped)
             ) {
-                if (_uiState.value.currentPlayer.giftsReceivedThisRound.contains(player.gift)) {
+                return if (_uiState.value.currentPlayer.giftsReceivedThisRound.contains(player.gift)) {
                     Log.d("ERROR", "You can't steal a gift that you've already claimed during this round.")
-                    "You can't steal a gift that you've already claimed during this round."
+                    return R.string.gift_claimed_error
                 } else {
                     val oldGiftReceiver: Player = player.gift.giftReceiver!!
                     _uiState.value.currentPlayer.giftsReceivedThisRound.add(player.gift)
                     player.gift.giftReceiver = _uiState.value.currentPlayer
 
-                    // ❌ TODO: Some kind of alert to let players know the currentPlayer/round has changed
                     _uiState.update { currentState ->
                         currentState.copy(currentPlayer = oldGiftReceiver)
                     }
+                    return -1
                 }
 
-                Log.d("ERROR", _uiState.value.currentPlayer.giftsReceivedThisRound.toString())
             } else if ((player.gift?.giftReceiver != null) && (player.gift.giftReceiver == _uiState.value.currentPlayer)) {
-                Log.d("ERROR", "You can't steal a gift that you've already claimed.")
+                Log.d("ERROR", "This is your current gift.")
+                return R.string.current_gift_error
             } else {
                 Log.d("ERROR", "You can't steal an unopened gift.")
+                return R.string.steal_unopened_gift_error
             }
+            return -1
         }
 
         fun onUnwrapGift(player: Player) {
             if (player.gift != null) {
                 player.gift.isWrapped = false
                 player.gift?.giftReceiver = _uiState.value.currentPlayer
-                _uiState.value.currentPlayer.giftsReceivedThisRound.add(player.gift)
+                // _uiState.value.currentPlayer.giftsReceivedThisRound.add(player.gift)
                 onStartNewRound()
             } else {
                 "You cant open a missing gift"

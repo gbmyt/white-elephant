@@ -3,7 +3,7 @@
     <string name="app_name">White Elephant Gift Exchange</string>
     <string name="back_button">Back</string>
 
-    <!-- Player Info -->
+    <!-- Players Screen Info -->
     <string name="view_players">View Players</string>
     <string name="players">Players</string>
     <string name="import_contacts">+ Import Contacts</string>
@@ -14,8 +14,10 @@
     <string name="game_rules_header">How to Play</string>
 
     <!-- Current Game Info -->
+    <string name="starting_new_game_msg">Starting New Game...the first player is %s</string>
     <string name="round_info">Round: </string>
     <string name="missing_gift">Still waiting for %s to upload a gift.</string>
+    <string name="current_player">Current Player: %s</string>
 
     <!-- Gift Actions Info -->
     <string name="alertbox_unwrap_gift_confirmation">Unwrap %s\'s gift?</string>
@@ -26,4 +28,19 @@
     <string name="unwrapped_gift">Unwrapped Gift</string>
     <string name="wrapped_gift">Wrapped Gift</string>
     <string name="gift_from_message">From: %s</string>
+    <string name="claimed_by_msg">Claimed by: %s</string>
+
+    <!-- Button Text -->
+    <string name="try_again_text">Try again</string>
+    <string name="start_text">Start</string>
+    <string name="okay_text">Okay</string>
+    <string name="confirm_btn_text">Confirm</string>
+    <string name="exit_txt">Exit</string>
+
+    <!-- Error Strings -->
+    <string name="start_new_game_error_msg">All Players Must Bring a Gift to Play! Make sure everyone has brought a gift and try again.</string>
+    <string name="current_gift_error">This is your current gift.</string>
+    <string name="steal_unopened_gift_error">You can\'t steal an unopened gift.</string>
+    <string name="start_a_game_msg">Start a game to view other player\'s gifts</string>
+    <string name="gift_claimed_error">You can\'t steal a gift that you\'ve already claimed during this round.</string>
 </resources>

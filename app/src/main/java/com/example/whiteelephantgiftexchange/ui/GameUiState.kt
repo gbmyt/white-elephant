@@ -12,5 +12,5 @@ data class GameUiState(
     val round: Int = 0,
     var players: List<Player> = PlayerData().players,
     val currentPlayer: Player = players[0],
-    val gifts: List<Gift> = PlayerData().players.map { it.gift!! }
+    val gifts: List<Gift> = players.map { it.gift!! }
 )
